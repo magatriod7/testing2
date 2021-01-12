@@ -15,7 +15,7 @@ const mongoose = require('mongoose');
             maxlength: 50
         },
         role: {
-            type: number,
+            type: Number,
             default: 0
         },
         image: String,
