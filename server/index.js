@@ -18,7 +18,6 @@ app.use(json());//데이터 json 타입 분석
 app.use(cookieParser());
 
 import { connect } from "mongoose";
-import { auth } from './middleware/auth';
 
 connect(process.env.MONGO_URI,{
     useNewUrlParser : true, useUnifiedTopology : true, useCreateIndex : true, useFindAndModify : false
@@ -88,8 +87,15 @@ app.get('/api/users/auth', auth ,(req,res) =>{
 
 })
 
-app.get('/api/users/logout', auth, (res,req) => {
-  
+app.get('/api/users/logout', auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id},
+  { token: "" }
+  , (err, user) => {
+    if (err) return res.json({ success: false, err});
+    return res.status(200).send({
+      success:true
+    })
+  })
 })
 
 app.listen(PORT, () => {
