@@ -4,6 +4,7 @@ import { User } from "./models/User";
 import dotenv from "dotenv"
 import path from "path"
 import cookieParser from "cookie-parser"
+import { auth } from './middleware/auth'
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(json());//데이터 json 타입 분석
 app.use(cookieParser());
 
 import { connect } from "mongoose";
+import { auth } from './middleware/auth';
 
 connect(process.env.MONGO_URI,{
     useNewUrlParser : true, useUnifiedTopology : true, useCreateIndex : true, useFindAndModify : false
@@ -29,7 +31,7 @@ app.get('/', (req,res) => {
 
 
 
-app.post('/register', (req, res) => {
+app.post('/api/user/register', (req, res) => {
   //회원 가입 할 떄 필요한 정보들을 client에서 가져오면 그것들을 database에 넣어준다.
   const user = new User(req.body);//body안에는 json으로 id, password 등이 들어 있다.
 
@@ -42,7 +44,7 @@ app.post('/register', (req, res) => {
   })
 })
 
-app.post('/login', (req,res) => {
+app.post('/api/user/login', (req,res) => {
 //이메일 찾기 
   User.findOne({ email: req.body.email }, (err, user) => {
     if(!user) {
@@ -68,6 +70,26 @@ app.post('/login', (req,res) => {
     })
 
   })
+})
+
+
+app.get('/api/users/auth', auth ,(req,res) =>{
+ //여기까지 미들웨어를 통과해 왔다는 이야기는 authentication이 true라는 말
+ res.status(200).json({
+   _id: req.user._id,
+   isAdmin: req.user.role === 0 ? false : true,
+   isAuth : true,
+   email:req.user.email,
+   name:req.user.name,
+   lastname: req.user.lastname,
+   role: req.user.role,
+   image:req.user.image
+ })
+
+})
+
+app.get('/api/users/logout', auth, (res,req) => {
+  
 })
 
 app.listen(PORT, () => {
