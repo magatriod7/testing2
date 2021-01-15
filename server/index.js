@@ -6,6 +6,7 @@ import path from "path"
 import cookieParser from "cookie-parser"
 import { auth } from './middleware/auth'
 
+
 dotenv.config();
 
 const app = express();
@@ -30,20 +31,20 @@ app.get('/', (req,res) => {
 
 
 
-app.post('/api/user/register', (req, res) => {
+app.post('/api/users/register', (req, res) => {
   //회원 가입 할 떄 필요한 정보들을 client에서 가져오면 그것들을 database에 넣어준다.
   const user = new User(req.body);//body안에는 json으로 id, password 등이 들어 있다.
 
   user.save((err, userInfo) => {
     console.log(err)
-    if (err) { console.log('userinfo err'); return res.json({ success: false, err})}
+    if (err) {console.log('userinfo err'); return res.json({ registerSuccess: false, err})}
     return res.status(200).json({
-      success: true
+      registerSuccess: true
     })
   })
 })
 
-app.post('/api/user/login', (req,res) => {
+app.post('/api/users/login', (req,res) => {
 //이메일 찾기 
   User.findOne({ email: req.body.email }, (err, user) => {
     if(!user) {
@@ -97,7 +98,9 @@ app.get('/api/users/logout', auth, (req, res) => {
     })
   })
 })
-
+app.get('/api/hello',(req,res) => {
+  res.send("안녕하세요~")
+})
 app.listen(PORT, () => {
   console.log(`App is listening on port ${PORT}!`);
 });
